@@ -12,6 +12,7 @@
     <!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css"
         integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/viewerjs/1.10.0/viewer.css"/>
 
     <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
@@ -20,6 +21,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/viewerjs/1.10.0/viewer.common.js"></script>
 
     <style>
         tr {
@@ -34,40 +37,45 @@
             <h1>热门机型一览</h1>
         </div>
         <div id="table-container" style="width: 90%;height: auto;margin: 0 auto;margin-top: 50px">
-            <table class="table table-hover">
-                <thead>
-                    <tr class="active">
-                        <th>ID</th>
-                        <th>设备名称</th>
-                        <th>操作系统版本</th>
-                        <th>手机型号</th>
-                        <th>手机品牌</th>
-                        <th>屏幕尺寸</th>
-                        <th>屏幕分辨率</th>
-                        <th>CPU</th>
-                        <th>屏幕类型</th>
-                        <th>链接</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="item in phones">
-                        <td>{{item['ID']}}</td>
-                        <td>{{item['Name']}}</td>
-                        <td>{{item['Os']}}</td>
-                        <td>{{item['Ptype']}}</td>
-                        <td>{{item['Brand']}}</td>
-                        <td>{{item['Size']}}英寸</td>
-                        <td>{{item['Resolution']}}</td>
-                        <td>{{item['Pcpu']}}</td>
-                        <td><input></td>
-                        <td><a :href="item['Link']" target="_blank">链接</a></td>
-                    </tr>
+            <form id="form" target="iframe">
+                <table class="table table-hover">
+                    <thead>
+                        <tr class="active" style="text-align: center;">
+                            <th>ID</th>
+                            <th style="width: 100px;">设备名称</th>
+                            <th style="width:100px">操作系统版本</th>
+                            <th>手机型号</th>
+                            <th>手机品牌</th>
+                            <th>屏幕尺寸</th>
+                            <th>屏幕分辨率</th>
+                            <th style="width: 100px;">CPU</th>
+                            <th>屏幕类型</th>
+                            <th>链接</th>
+                            <th>图片</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item in phones">
+                            <td>{{item['ID']}}</td>
+                            <td>{{item['Name']}}</td>
+                            <td>{{item['Os']}}</td>
+                            <td>{{item['Ptype']}}</td>
+                            <td>{{item['Brand']}}</td>
+                            <td>{{item['Size']}}英寸</td>
+                            <td>{{item['Resolution']}}</td>
+                            <td>{{item['Pcpu']}}</td>
+                            <td><input :name="item['Name']" :value="item['Screen']['String']"></td>
+                            <td><a :href="item['Link']" target="_blank">链接</a></td>
+                            <td><img @click="show" style="width: 160px;height:120px;" :src="item['Img']"></td>
+                        </tr>
 
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </form>
+            <iframe name="iframe" style="visibility: hidden;"></iframe>
         </div>
         <div style="position: fixed; top: 20px;right:20px">
-            <button class="btn btn-primary">保存</button>
+            <button class="btn btn-primary" @click="submit">保存</button>
         </div>
         <div style="position: fixed; top:60px;right: 20px;">
             <button class="btn btn-default" @click="go_top">顶部</button>
@@ -95,6 +103,24 @@
             },
             download: function() {
                 window.location.href="/download"
+            },
+            submit: function() {
+                $("#form").ajaxSubmit({
+                    type:'POST',
+                    url:'/submit',
+                    success: function(){
+                        alert("保存成功");
+                    }
+                });
+            },
+            show: function (event) {
+                new Viewer(event.target, {
+                    toolbar: true,
+                    scalable: false,
+                    rotatable: false,
+                    prev: 0,
+                    next: 0
+                });
             }
         },
         created: function () {
